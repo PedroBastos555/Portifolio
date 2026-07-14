@@ -1,0 +1,456 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 12,
+              "triggerAtMinute": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -960,
+        976
+      ],
+      "id": "3a08de79-2db2-4e7e-bdb3-d998064ce5e2",
+      "name": "Schedule Trigger1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "febba87f-dd5a-491a-86dd-541bc30138fc",
+              "name": "data",
+              "value": "={{ new Date(Date.now() - 3*60*60*1000 - 86400000).toISOString().slice(0,10) }}",
+              "type": "string"
+            },
+            {
+              "id": "fcb24ea2-0b98-4ecd-bc72-848ae9bdf025",
+              "name": "pontuação_minima",
+              "value": "5",
+              "type": "string"
+            },
+            {
+              "id": "f08d712b-3e8d-4a9f-9cc3-f93fce636458",
+              "name": "termos_pesquisa",
+              "value": "finanças OR economia OR investimento OR mercado OR dinheiro OR inflação OR juros OR emprego OR renda OR imposto",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -720,
+        976
+      ],
+      "id": "528f4ef5-8f2d-4d67-afbc-a17716aaf839",
+      "name": "define_dados1"
+    },
+    {
+      "parameters": {
+        "url": "https://newsapi.org/v2/everything",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "from",
+              "value": "={{ $('define_dados1').item.json.data }}"
+            },
+            {
+              "name": "to",
+              "value": "={{ $('define_dados1').item.json.data }}"
+            },
+            {
+              "name": "language",
+              "value": "pt"
+            },
+            {
+              "name": "sortBy",
+              "value": "publishedAt"
+            },
+            {
+              "name": "pageSize",
+              "value": "20"
+            },
+            {
+              "name": "q",
+              "value": "={{ $('define_dados1').item.json.termos_pesquisa }}"
+            },
+            {
+              "name": "domains",
+              "value": "infomoney.com.br,valor.globo.com,exame.com,g1.globo.com,uol.com.br,folha.uol.com.br,estadao.com.br,cnnbrasil.com.br,terra.com.br"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -464,
+        976
+      ],
+      "id": "a87e3c5d-3914-45aa-9cb8-b9acab34eef4",
+      "name": "busca_noticias1",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "2zv43OGRiMi7tiLM",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "articles",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        976
+      ],
+      "id": "378dc0b1-d5d6-457f-abfd-c8d5af5c3b0e",
+      "name": "separa_itens1",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=description: {{ $json.description }}\n\ncontent: {{ $json.content }}\n\ntitle:{{ $json.title }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "# Agente Analisador de Relevância e Categorizador de Notícias Financeiras\n\n## Contexto\nVocê é um agente especializado em avaliar notícias sobre finanças pessoais e economia para o público geral brasileiro. Seu público são pessoas comuns que querem entender como os acontecimentos econômicos afetam o seu dia a dia — como o preço dos alimentos, o custo do crédito, o emprego e o poder de compra. Não são necessariamente investidores.\n\n## Sua Tarefa\nAnalisar o título, descrição e trecho da notícia e retornar:\n1. Uma pontuação de relevância de 0 a 10\n2. A categoria temática da notícia\n\n## Categorias Disponíveis\nEscolha EXATAMENTE UMA das categorias abaixo. Use sempre letras minúsculas, exatamente como escrito:\n- selic — taxa de juros, decisões do Copom, política monetária\n- dolar — câmbio, dólar, euro, moedas estrangeiras\n- inflacao — IPCA, IGP-M, inflação, preços\n- economia — PIB, desemprego, dados econômicos gerais, macroeconomia, mercados internacionais\n- mercado — bolsa de valores, Ibovespa, ações, dividendos, FIIs, ETFs, fundos, criptomoedas, resultados corporativos\n\n## Critérios de Pontuação (0-10)\n\noas notícias (pontuação 8-10)\n\n\"Banco Central reduz Selic para 10,5% ao ano — crédito deve ficar mais barato\"\n\"IPCA de março fica em 0,3% e acumula menor inflação em 3 anos\"\n\"Governo anuncia reajuste do salário mínimo para R$ 1.500 a partir de maio\"\n\"Caixa lança linha de crédito com juros reduzidos para compra da casa própria\"\n\"Desemprego cai para 6,8% e atinge menor nível desde 2012\"\n\n\nNotícias medianas (pontuação 5-7)\n\n\"Ibovespa fecha em alta de 1,2% puxado por ações de bancos\"\n\"Dólar recua para R$ 4,95 com melhora do cenário externo\"\n\"Nubank anuncia novo produto de investimento com rentabilidade acima do CDI\"\n\"Governo estuda mudanças na tabela do Imposto de Renda para 2025\"\n\n\nMás notícias para o filtro (pontuação 0-4)\n\n\"Empresa lança API de pagamentos com latência de 12ms para fintechs\"\n\"Banco XYZ atualiza SDK de integração com sistemas legados\"\n\"Hedge fund americano rebalanceia carteira de derivativos cambiais\"\n\"Fed discute ajuste técnico no índice de reservas fracionárias bancárias\"\n\"Startup de blockchain lança token de governança para protocolo DeFi\"\n\n## Formato de Saída\nRetorne APENAS um JSON válido. Nenhum texto antes, nenhum texto depois, nenhum bloco de código, nenhum markdown.\n\nExemplo exato do que deve ser retornado:\n{\"pontuação\": 8, \"categoria\": \"selic\"}\n\nNUNCA retorne assim:\n```json\n{\"pontuação\": 8, \"categoria\": \"selic\"}\n```\n\nNUNCA adicione explicações antes ou depois do JSON.\nNUNCA use aspas diferentes das aspas duplas padrão.\n"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        560,
+        960
+      ],
+      "id": "6b79f412-5d44-4d7e-9df1-82ff3e464b3d",
+      "name": "agente_analisador_de_relevância1"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"pontuação\": 9,\n\t\"categoria\": \"Selic\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        752,
+        1168
+      ],
+      "id": "ae40011f-5195-41be-9904-c1b7dda1da09",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7b8329f3-4392-4e84-8cd4-78c2dffc189d",
+              "leftValue": "={{ $json.output['pontuação'] }}",
+              "rightValue": "={{ $('define_dados1').first().json['pontuação_minima'] | int }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        960
+      ],
+      "id": "ba2e9f08-9fd8-4657-8c4b-a8235d0c51c9",
+      "name": "possui_pontuação_minima1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        1184
+      ],
+      "id": "6e83b20c-ad02-4da7-a9b3-02d390ea878b",
+      "name": "não_faz_nada1"
+    },
+    {
+      "parameters": {
+        "tableId": "news",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $('separa_itens1').item.json.title }}"
+            },
+            {
+              "fieldId": "summary",
+              "fieldValue": "={{ $('separa_itens1').item.json.description }}"
+            },
+            {
+              "fieldId": "category",
+              "fieldValue": "={{ $json.output.categoria || 'Geral' }}"
+            },
+            {
+              "fieldId": "url",
+              "fieldValue": "={{ $('separa_itens1').item.json.url }}"
+            },
+            {
+              "fieldId": "source",
+              "fieldValue": "={{ $('separa_itens1').item.json.source.name }}"
+            },
+            {
+              "fieldId": "published_at",
+              "fieldValue": "={{ $('separa_itens1').item.json.publishedAt }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        928
+      ],
+      "id": "80c461c3-6968-45d8-a2f0-3870940e6f93",
+      "name": "insere_no_banco_de_dados2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ErN45xFIOrZCjEQt",
+          "name": "Supabase account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+              "leftValue": "={{ $json.title }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists"
+              }
+            },
+            {
+              "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+              "leftValue": "={{ $json.title }}",
+              "rightValue": "null",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        96,
+        976
+      ],
+      "id": "2278c4a6-6841-4495-834b-97383dc5708b",
+      "name": "valida_campos_obrigatorios2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        320,
+        1264
+      ],
+      "id": "087c16e5-090b-4d76-9eb0-0642c78e2602",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-haiku-4-5-20251001",
+          "mode": "list",
+          "cachedResultName": "Claude Haiku 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        1456
+      ],
+      "id": "a60c4098-edc8-43cc-a01c-296ce6959fdd",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "wdc7fNfXgJfDmnSe",
+          "name": "Anthropic account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "define_dados1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "define_dados1": {
+      "main": [
+        [
+          {
+            "node": "busca_noticias1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "busca_noticias1": {
+      "main": [
+        [
+          {
+            "node": "separa_itens1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "separa_itens1": {
+      "main": [
+        [
+          {
+            "node": "valida_campos_obrigatorios2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "agente_analisador_de_relevância1": {
+      "main": [
+        [
+          {
+            "node": "possui_pontuação_minima1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "agente_analisador_de_relevância1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "possui_pontuação_minima1": {
+      "main": [
+        [
+          {
+            "node": "insere_no_banco_de_dados2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "não_faz_nada1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "valida_campos_obrigatorios2": {
+      "main": [
+        [
+          {
+            "node": "agente_analisador_de_relevância1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "agente_analisador_de_relevância1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
