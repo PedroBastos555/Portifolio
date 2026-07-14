@@ -3,6 +3,7 @@
 Sou formado em Análise e Desenvolvimento de Sistemas, cursando pós-graduação em IA Aplicada a Negócios. Tenho experiência com projetos de automação e desenvolvimento com ferramentas de IA. Atuo também como consultor de tecnologia para pequenas empresas.
 
 **Stack principal:** Python, Java, Git, GitHub, TypeScript, Supabase (Postgres/RLS), N8N, OpenAI API, Stripe, Redis
+
 **Ferramentas de desenvolvimento:** Claude Code (lógica/estrutura), Lovable (camada visual), Supabase MCP (operações de banco), N8N (automações), Postman (teste de API)
 
 ---
