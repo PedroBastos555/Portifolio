@@ -1,0 +1,113 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        5616,
+        1312
+      ],
+      "id": "25364740-6a12-4a6b-912f-dab1fa1ae264",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "text": "=Alerta de Erro\nURL:{{ $json.URL }}  \nMensagem de erro: {{ $json.error_mensage }}\nWorkflow: {{ $json.workflow_name }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        6032,
+        1312
+      ],
+      "id": "81ec1c8c-a4f6-47af-a999-6573ccd3c6d5",
+      "name": "Send a text message",
+      "webhookId": "92fcb07d-a85c-4267-96d2-e8755b20dbe8"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "021519cc-cce2-49d2-938c-600ff5dc86c0",
+              "name": "URL",
+              "value": "={{ $json.execution.url }}",
+              "type": "string"
+            },
+            {
+              "id": "4fa30c60-1524-4805-9aa1-0fe0b722dbe4",
+              "name": "error_mensage",
+              "value": "={{ $json.execution.error.message }}",
+              "type": "string"
+            },
+            {
+              "id": "556a64e6-a30a-461a-b67f-501c1713e4b8",
+              "name": "workflow_name",
+              "value": "={{ $json.workflow.name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5824,
+        1312
+      ],
+      "id": "fc31cf33-ffbb-4f45-9bf4-464ca867e8ff",
+      "name": "Edit Fields3"
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Error Trigger": [
+      {
+        "execution": {
+          "id": 231,
+          "url": "https://zenoxia.app.n8n.cloud/execution/workflow/1/231",
+          "retryOf": "34",
+          "error": {
+            "message": "Example Error Message",
+            "stack": "Stacktrace"
+          },
+          "lastNodeExecuted": "Node With Error",
+          "mode": "manual"
+        },
+        "workflow": {
+          "id": "1",
+          "name": "Example Workflow"
+        }
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "704c5b9362bd8c90a45f0f5875b2aaeadecd81e47eed54d171d4fe607bc03023"
+  }
+}
