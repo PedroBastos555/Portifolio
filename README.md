@@ -35,7 +35,7 @@ SaaS de finanças pessoais com IA.
 
 ## Automações / Integrações
 
-- **Agente de IA para WhatsApp (https://github.com/PedroBastos555/Portifolio/tree/main/n8n-workflow/agente-whatsapp)** — conecta ao WhatsApp do usuário utilizando a API não oficial Z-API, com suporte a texto, áudio, imagem e PDF.
+- **Agente de IA para WhatsApp (https://github.com/PedroBastos555/Portifolio/tree/main/n8n-workflow/agente%20whatsapp)** — conecta ao WhatsApp do usuário utilizando a API não oficial Z-API, com suporte a texto, áudio, imagem e PDF.
 - **Portal de notícias automatizado (https://github.com/PedroBastos555/Portifolio/tree/main/n8n-workflow/portal_noticias)** — busca notícias filtrando por nicho e adiciona ao banco de dados.
 - **Avaliador e refinador de prompt (https://github.com/PedroBastos555/Portifolio/tree/main/n8n-workflow/refinador_prompt)** — lê um prompt, pontua com base em critérios de engenharia de prompt e devolve uma versão otimizada.
 - **Tratamento de erro (https://github.com/PedroBastos555/Portifolio/tree/main/n8n-workflow/tratamento_erro)** - workflow que dispara quando um fluxo da erro e envia um aviso direto no telegram
